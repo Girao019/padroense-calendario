@@ -62,7 +62,14 @@ def next_round(rows, ours):
             m = re.fullmatch(r"Vencedor jogo (\d+)", row[side].strip())
             if m and m.group(1) in alive:
                 prev = alive[m.group(1)]
-                found.append(dict(row, **{side: our_name(prev), "TENTATIVE": prev["JOG_GOLOS_CASA"] is None}))
+                ours_side = "CASA" if prev["ID_OBJECTO_CASA"] == CLUB_ID else "FORA"
+                slot = side.split("_")[1]
+                found.append(dict(row, **{
+                    side: our_name(prev),
+                    f"ID_OBJECTO_{slot}": CLUB_ID,
+                    f"URL_EMBLEMA_{slot}": prev.get(f"URL_EMBLEMA_{ours_side}"),
+                    "TENTATIVE": prev["JOG_GOLOS_CASA"] is None,
+                }))
     return found
 
 
