@@ -53,6 +53,8 @@ def utc(dt):
 
 
 def ics(rows):
+    # Truncated to the day so the scheduled run commits at most once a day.
+    stamp = datetime.now(ZoneInfo("UTC")).strftime("%Y%m%dT000000Z")
     out = [
         "BEGIN:VCALENDAR",
         "VERSION:2.0",
@@ -70,7 +72,7 @@ def ics(rows):
         out += [
             "BEGIN:VEVENT",
             f"UID:{r['ID_PROVA_JOGO']}@portal.fpa.pt",
-            f"DTSTAMP:{utc(start)}",
+            f"DTSTAMP:{stamp}",
             f"DTSTART:{utc(start)}",
             f"DTEND:{utc(start + DURATION)}",
             "SUMMARY:" + esc(prefix + home + score + away),
