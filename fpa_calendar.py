@@ -1,38 +1,34 @@
 #!/usr/bin/env python3
-"""Gera um calendário iCalendar com os jogos de uma equipa numa prova da FPA.
+"""Gera um calendário iCalendar com os jogos de uma equipa em provas da FPA.
 
-Uso: python3 fpa_calendar.py [URL_DA_PROVA] [EQUIPA] > calendario.ics
+Uso: python3 fpa_calendar.py [EQUIPA] [ID_PROVA ...] > calendario.ics
 """
 import json
-import re
 import sys
 import urllib.request
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
-URL = "https://portal.fpa.pt/prova/10018/"
+API = "https://ws.fpa.pt/index.php/"
 TEAM = "PADROENSE"
+PROVAS = ["10018", "10030"]
 DURATION = timedelta(minutes=90)
 LISBON = ZoneInfo("Europe/Lisbon")
 
 
-def fetch(url):
-    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+def fetch(path):
+    req = urllib.request.Request(API + path, headers={"User-Agent": "Mozilla/5.0"})
     with urllib.request.urlopen(req, timeout=30) as r:
-        return r.read().decode("utf-8")
+        return json.load(r) or []
 
 
-def games(html, team):
-    decoder = json.JSONDecoder()
+def games(team, provas):
     seen = {}
-    for m in re.finditer(r"var TABLE_CONTENT_\d+\s*=\s*", html):
-        data, _ = decoder.raw_decode(html, m.end())
-        for tab in data.get("tabs", []):
-            if tab.get("id") != "results":
-                continue
-            for row in tab.get("rows", []):
+    for prova in provas:
+        for fase in fetch(f"getFases/{prova}"):
+            for row in fetch(f"getResultadosCalendario/{prova}/{fase['ID_FASE']}"):
                 if team in row["EQUIPA_CASA"].upper() + row["EQUIPA_FORA"].upper():
-                    seen[row["ID_PROVA_JOGO"]] = row
+                    seen[row["ID_PROVA_JOGO"]] = dict(row, ID_PROVA=prova, FASE=fase["DESCRICAO"])
     return sorted(seen.values(), key=lambda r: (r["JOG_DATA"], r["JOG_HORA"] or ""))
 
 
@@ -56,7 +52,7 @@ def utc(dt):
     return dt.astimezone(ZoneInfo("UTC")).strftime("%Y%m%dT%H%M%SZ")
 
 
-def ics(rows, competition):
+def ics(rows):
     out = [
         "BEGIN:VCALENDAR",
         "VERSION:2.0",
@@ -68,6 +64,8 @@ def ics(rows, competition):
     for r in rows:
         home, away = " ".join(r["EQUIPA_CASA"].split()), " ".join(r["EQUIPA_FORA"].split())
         score = f" {r['JOG_GOLOS_CASA']}-{r['JOG_GOLOS_FORA']} " if r["JOG_GOLOS_CASA"] is not None else " vs "
+        competition = " ".join(r["PRO_DESCRICAO"].split())
+        prefix = "Taça: " if "TACA" in competition.upper() else ""
         start = datetime.fromisoformat(f"{r['JOG_DATA']}T{r['JOG_HORA'] or '00:00'}").replace(tzinfo=LISBON)
         out += [
             "BEGIN:VEVENT",
@@ -75,10 +73,10 @@ def ics(rows, competition):
             f"DTSTAMP:{utc(start)}",
             f"DTSTART:{utc(start)}",
             f"DTEND:{utc(start + DURATION)}",
-            f"SUMMARY:{esc(home + score + away)}",
-            f"LOCATION:{esc(r['REC_NOME'])}",
-            "DESCRIPTION:" + esc(f"{competition} - Jornada {r['PJO_NUM_JORNADA']} (jogo {r['JOG_NUM_JOGO']})"),
-            f"URL:{URL}",
+            "SUMMARY:" + esc(prefix + home + score + away),
+            "LOCATION:" + esc(r["REC_NOME"]),
+            "DESCRIPTION:" + esc(f"{competition} - {r['FASE']} - Jornada {r['PJO_NUM_JORNADA']} (jogo {r['JOG_NUM_JOGO']})"),
+            f"URL:https://portal.fpa.pt/prova/{r['ID_PROVA']}/",
             "END:VEVENT",
         ]
     out.append("END:VCALENDAR")
@@ -86,9 +84,9 @@ def ics(rows, competition):
 
 
 if __name__ == "__main__":
-    URL = sys.argv[1] if len(sys.argv) > 1 else URL
-    TEAM = sys.argv[2].upper() if len(sys.argv) > 2 else TEAM
-    rows = games(fetch(URL), TEAM)
+    TEAM = sys.argv[1].upper() if len(sys.argv) > 1 else TEAM
+    provas = sys.argv[2:] or PROVAS
+    rows = games(TEAM, provas)
     if not rows:
-        sys.exit(f"Nenhum jogo de {TEAM} encontrado em {URL}")
-    sys.stdout.write(ics(rows, rows[0]["PRO_DESCRICAO"]))
+        sys.exit(f"Nenhum jogo de {TEAM} encontrado nas provas {provas}")
+    sys.stdout.write(ics(rows))
