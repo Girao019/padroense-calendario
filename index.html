@@ -43,6 +43,8 @@
   .V { color: var(--win); } .D { color: var(--loss); } .E { color: var(--draw); }
   .list { padding: 0; }
   .tag.maybe { color: var(--muted); }
+  .live { display: inline-block; font-size: .75rem; font-weight: 700; color: var(--accent-text); background: var(--accent);
+          border-radius: 6px; padding: 2px 6px; margin-left: 8px; vertical-align: middle; }
   table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
   th, td { padding: 8px 6px; text-align: right; border-top: 1px solid var(--line); }
   th { color: var(--muted); font-weight: 600; font-size: .8rem; border-top: 0; }
@@ -120,7 +122,9 @@ function parse(text) {
     const s = e.SUMMARY.replace(/^Taça( \(se vencer\))?: /, "");
     const m = s.match(/^(.+?) (\d+)-(\d+) (.+)$/) || s.match(/^(.+?) vs (.+)$/);
     const [home, away, gh, ga] = m.length === 5 ? [m[1], m[4], +m[2], +m[3]] : [m[1], m[2], null, null];
-    return { start, allDay, cup, maybe, home, away, gh, ga, location: e.LOCATION || "" };
+    const desc = e.DESCRIPTION || "";
+    const prova = (desc.match(/\/prova\/(\d+)\//) || [])[1], num = (desc.match(/\(jogo (\d+)\)/) || [])[1];
+    return { start, allDay, cup, maybe, home, away, gh, ga, prova, num, location: e.LOCATION || "" };
   }).sort((a, b) => a.start - b.start);
 }
 
@@ -161,22 +165,49 @@ function row(g) {
   return li;
 }
 
-fetch(feed, { cache: "no-cache" }).then((r) => r.text()).then((text) => {
-  const games = parse(text);
-  const now = Date.now() - 2 * 3600e3;
-  const upcoming = games.filter((g) => g.gh == null && g.start >= now);
+const API = "https://ws.fpa.pt/index.php/";
+const inWindow = (g) => !g.allDay && g.gh == null && Date.now() >= g.start - 10 * 60e3 && Date.now() <= +g.start + 3 * 3600e3;
+let games = [];
+
+function render() {
+  const cutoff = Date.now() - 3 * 3600e3;
+  const upcoming = games.filter((g) => g.gh == null && g.start >= cutoff);
   const results = games.filter((g) => g.gh != null).reverse();
 
   const next = document.getElementById("next");
   next.textContent = "";
   if (upcoming.length) {
     const g = upcoming[0];
-    next.append(el("div", "when", g.allDay ? `${fmtDate.format(g.start)} (hora a definir)` : fmtLong.format(g.start)),
-                el("div", "teams", (g.cup ? (g.maybe ? "Taça (se vencer): " : "Taça: ") : "") + `${g.home} vs ${g.away}`), where(g));
+    const when = el("div", "when", g.allDay ? `${fmtDate.format(g.start)} (hora a definir)` : fmtLong.format(g.start));
+    if (inWindow(g) && Date.now() >= g.start) when.append(el("span", "live", "A DECORRER"));
+    next.append(when, el("div", "teams", (g.cup ? (g.maybe ? "Taça (se vencer): " : "Taça: ") : "") + `${g.home} vs ${g.away}`), where(g));
   } else next.textContent = "Sem jogos marcados.";
 
-  document.getElementById("upcoming").append(...upcoming.map(row));
-  document.getElementById("results").append(...results.map(row));
+  document.getElementById("upcoming").replaceChildren(...upcoming.map(row));
+  document.getElementById("results").replaceChildren(...results.map(row));
+}
+
+// FPA has no live feed; during a game window poll its API so the result shows up as soon as it is published.
+async function poll() {
+  const live = games.filter((g) => inWindow(g) && g.prova && g.num);
+  if (!live.length) return;
+  const get = (path) => fetch(API + path, { cache: "no-store" }).then((r) => r.json());
+  for (const prova of new Set(live.map((g) => g.prova))) {
+    for (const fase of await get(`getFases/${prova}`) || []) {
+      for (const r of await get(`getResultadosCalendario/${prova}/${fase.ID_FASE}`) || []) {
+        const g = live.find((g) => g.prova === prova && g.num === r.JOG_NUM_JOGO);
+        if (g && r.JOG_GOLOS_CASA != null) { g.gh = +r.JOG_GOLOS_CASA; g.ga = +r.JOG_GOLOS_FORA; }
+      }
+    }
+  }
+  render();
+}
+
+fetch(feed, { cache: "no-cache" }).then((r) => r.text()).then((text) => {
+  games = parse(text);
+  render();
+  poll().catch(() => {});
+  setInterval(() => poll().catch(() => {}), 2 * 60e3);
 }).catch(() => { document.getElementById("next").textContent = "Não foi possível carregar o calendário."; });
 
 fetch(new URL("classificacao.json", location.href), { cache: "no-cache" }).then((r) => r.ok ? r.json() : null).then((c) => {
