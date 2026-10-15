@@ -42,9 +42,19 @@
   .score { font-weight: 700; font-variant-numeric: tabular-nums; padding: 4px 8px; border-radius: 8px; white-space: nowrap; }
   .V { color: var(--win); } .D { color: var(--loss); } .E { color: var(--draw); }
   .list { padding: 0; }
+  .tag.maybe { color: var(--muted); }
+  table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  th, td { padding: 8px 6px; text-align: right; border-top: 1px solid var(--line); }
+  th { color: var(--muted); font-weight: 600; font-size: .8rem; border-top: 0; }
+  th:nth-child(2), td:nth-child(2) { text-align: left; width: 100%; overflow-wrap: anywhere; }
+  td:first-child, th:first-child { padding-left: 16px; }
+  td:last-child, th:last-child { padding-right: 16px; font-weight: 700; }
+  tr.us td { color: var(--accent); font-weight: 700; }
+  .table { padding: 0; overflow-x: auto; }
+  .caption { color: var(--muted); font-size: .85rem; margin: -6px 0 10px; }
   footer { margin-top: 32px; color: var(--muted); font-size: .85rem; }
   footer a { color: inherit; }
-  @media (max-width: 480px) { li.game { grid-template-columns: 64px 1fr; } .score { grid-column: 2; justify-self: start; padding-left: 0; } }
+  @media (max-width: 480px) { .wide { display: none; } li.game { grid-template-columns: 64px 1fr; } .score { grid-column: 2; justify-self: start; padding-left: 0; } }
 </style>
 </head>
 <body>
@@ -59,6 +69,15 @@
 
   <h2>Próximo jogo</h2>
   <div class="card next" id="next">A carregar…</div>
+
+  <section id="standings" hidden>
+    <h2>Classificação</h2>
+    <p class="caption" id="standings-caption"></p>
+    <div class="card table"><table>
+      <thead><tr><th>#</th><th>Equipa</th><th>J</th><th>V</th><th>E</th><th>D</th><th class="wide">GM</th><th class="wide">GS</th><th>Pts</th></tr></thead>
+      <tbody id="standings-body"></tbody>
+    </table></div>
+  </section>
 
   <h2>Calendário</h2>
   <div class="card list"><ul id="upcoming"></ul></div>
@@ -92,12 +111,16 @@ function parse(text) {
   }
   return events.map((e) => {
     const d = e.DTSTART;
-    const start = new Date(Date.UTC(+d.slice(0, 4), +d.slice(4, 6) - 1, +d.slice(6, 8), +d.slice(9, 11), +d.slice(11, 13)));
-    const cup = e.SUMMARY.startsWith("Taça: ");
-    const s = e.SUMMARY.replace(/^Taça: /, "");
+    const allDay = d.length === 8;
+    const start = allDay
+      ? new Date(Date.UTC(+d.slice(0, 4), +d.slice(4, 6) - 1, +d.slice(6, 8), 12))
+      : new Date(Date.UTC(+d.slice(0, 4), +d.slice(4, 6) - 1, +d.slice(6, 8), +d.slice(9, 11), +d.slice(11, 13)));
+    const cupMatch = e.SUMMARY.match(/^Taça( \(se vencer\))?: /);
+    const cup = !!cupMatch, maybe = !!(cupMatch && cupMatch[1]);
+    const s = e.SUMMARY.replace(/^Taça( \(se vencer\))?: /, "");
     const m = s.match(/^(.+?) (\d+)-(\d+) (.+)$/) || s.match(/^(.+?) vs (.+)$/);
     const [home, away, gh, ga] = m.length === 5 ? [m[1], m[4], +m[2], +m[3]] : [m[1], m[2], null, null];
-    return { start, cup, home, away, gh, ga, location: e.LOCATION || "" };
+    return { start, allDay, cup, maybe, home, away, gh, ga, location: e.LOCATION || "" };
   }).sort((a, b) => a.start - b.start);
 }
 
@@ -106,6 +129,9 @@ const fmtDay = new Intl.DateTimeFormat("pt-PT", { ...tz, day: "2-digit", month: 
 const fmtWeekday = new Intl.DateTimeFormat("pt-PT", { ...tz, weekday: "long" });
 const fmtTime = new Intl.DateTimeFormat("pt-PT", { ...tz, hour: "2-digit", minute: "2-digit" });
 const fmtLong = new Intl.DateTimeFormat("pt-PT", { ...tz, weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" });
+const fmtDate = new Intl.DateTimeFormat("pt-PT", { ...tz, weekday: "long", day: "numeric", month: "long" });
+const time = (g) => g.allDay ? "hora a definir" : fmtTime.format(g.start);
+const label = (g) => g.maybe ? "TAÇA (SE VENCER)" : "TAÇA";
 const maps = (q) => "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(q);
 const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
 const isUs = (team) => /PADROENSE/i.test(team);
@@ -120,10 +146,10 @@ function where(g) {
 function row(g) {
   const li = el("li", "game");
   const date = el("div", "date", fmtDay.format(g.start));
-  date.append(el("small", null, `${fmtWeekday.format(g.start).slice(0, 3)}. ${fmtTime.format(g.start)}`));
+  date.append(el("small", null, `${fmtWeekday.format(g.start).slice(0, 3)}. ${time(g)}`));
   const mid = el("div");
   const teams = el("div", "teams");
-  if (g.cup) teams.append(el("span", "tag", "TAÇA"));
+  if (g.cup) teams.append(el("span", g.maybe ? "tag maybe" : "tag", label(g)));
   teams.append(`${g.home} - ${g.away}`);
   mid.append(teams, where(g));
   li.append(date, mid);
@@ -145,13 +171,27 @@ fetch(feed, { cache: "no-cache" }).then((r) => r.text()).then((text) => {
   next.textContent = "";
   if (upcoming.length) {
     const g = upcoming[0];
-    next.append(el("div", "when", fmtLong.format(g.start)),
-                el("div", "teams", (g.cup ? "Taça: " : "") + `${g.home} vs ${g.away}`), where(g));
+    next.append(el("div", "when", g.allDay ? `${fmtDate.format(g.start)} (hora a definir)` : fmtLong.format(g.start)),
+                el("div", "teams", (g.cup ? (g.maybe ? "Taça (se vencer): " : "Taça: ") : "") + `${g.home} vs ${g.away}`), where(g));
   } else next.textContent = "Sem jogos marcados.";
 
   document.getElementById("upcoming").append(...upcoming.map(row));
   document.getElementById("results").append(...results.map(row));
 }).catch(() => { document.getElementById("next").textContent = "Não foi possível carregar o calendário."; });
+
+fetch(new URL("classificacao.json", location.href), { cache: "no-cache" }).then((r) => r.ok ? r.json() : null).then((c) => {
+  if (!c) return;
+  document.getElementById("standings-caption").textContent = `${c.prova}, ${c.fase}`;
+  const body = document.getElementById("standings-body");
+  for (const t of c.tabela) {
+    const tr = el("tr", t.equipa === c.equipa ? "us" : null);
+    for (const [k, wide] of [["pos"], ["equipa"], ["j"], ["v"], ["e"], ["d"], ["gm", 1], ["gs", 1], ["pts"]]) {
+      tr.append(el("td", wide ? "wide" : null, t[k]));
+    }
+    body.append(tr);
+  }
+  document.getElementById("standings").hidden = false;
+}).catch(() => {});
 </script>
 </body>
 </html>

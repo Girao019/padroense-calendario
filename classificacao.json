@@ -1,0 +1,117 @@
+{
+ "prova": "PO02 - Campeonato Nacional 2a Divisao Masculina",
+ "fase": "1a Fase - Zona 1",
+ "equipa": "PADROENSE FC",
+ "tabela": [
+  {
+   "pos": "1",
+   "equipa": "AA ÁGUAS SANTAS 'B'",
+   "j": "5",
+   "v": "4",
+   "e": "0",
+   "d": "1",
+   "gm": "159",
+   "gs": "129",
+   "pts": "13"
+  },
+  {
+   "pos": "2",
+   "equipa": "AC LAMEGO /Naturdouro Viagens",
+   "j": "5",
+   "v": "4",
+   "e": "0",
+   "d": "1",
+   "gm": "166",
+   "gs": "140",
+   "pts": "13"
+  },
+  {
+   "pos": "3",
+   "equipa": "CDC S. PAIO OLEIROS",
+   "j": "5",
+   "v": "3",
+   "e": "1",
+   "d": "1",
+   "gm": "126",
+   "gs": "127",
+   "pts": "12"
+  },
+  {
+   "pos": "4",
+   "equipa": "PADROENSE FC",
+   "j": "5",
+   "v": "3",
+   "e": "0",
+   "d": "2",
+   "gm": "140",
+   "gs": "138",
+   "pts": "11"
+  },
+  {
+   "pos": "5",
+   "equipa": "GONDOMAR CULTURAL",
+   "j": "5",
+   "v": "2",
+   "e": "1",
+   "d": "2",
+   "gm": "144",
+   "gs": "153",
+   "pts": "10"
+  },
+  {
+   "pos": "6",
+   "equipa": "ESTRELA VIGOROSA SPORT",
+   "j": "5",
+   "v": "2",
+   "e": "0",
+   "d": "3",
+   "gm": "134",
+   "gs": "150",
+   "pts": "9"
+  },
+  {
+   "pos": "7",
+   "equipa": "ACADÉMICO FC /Ribadouro",
+   "j": "5",
+   "v": "2",
+   "e": "0",
+   "d": "3",
+   "gm": "128",
+   "gs": "141",
+   "pts": "9"
+  },
+  {
+   "pos": "8",
+   "equipa": "CDC SANTANA",
+   "j": "5",
+   "v": "1",
+   "e": "1",
+   "d": "3",
+   "gm": "122",
+   "gs": "128",
+   "pts": "8"
+  },
+  {
+   "pos": "9",
+   "equipa": "AC VERMOIM /LUZACRIL",
+   "j": "5",
+   "v": "1",
+   "e": "1",
+   "d": "3",
+   "gm": "129",
+   "gs": "136",
+   "pts": "8"
+  },
+  {
+   "pos": "10",
+   "equipa": "AC LUSITANOS",
+   "j": "5",
+   "v": "0",
+   "e": "2",
+   "d": "3",
+   "gm": "118",
+   "gs": "124",
+   "pts": "7"
+  }
+ ]
+}

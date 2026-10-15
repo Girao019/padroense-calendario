@@ -103,6 +103,18 @@ DESCRIPTION:PO02 - Campeonato Nacional 2a Divisao Masculina - 1a Fase - Zon
  .fpa.pt/prova/10018/
 END:VEVENT
 BEGIN:VEVENT
+UID:329534@portal.fpa.pt
+DTSTAMP:20261015T000000Z
+DTSTART:20261107T210000Z
+DTEND:20261107T223000Z
+SUMMARY:Taça (se vencer): CDC S. PAIO OLEIROS vs PADROENSE FC
+LOCATION:Centro Desportivo e Cultural de São Paio de Oleiros\, Rua do Cent
+ ro Desportivo e Cultural\, 4535-544 São Paio de Oleiros
+DESCRIPTION:PO20 - Taca Portugal Betclic Masculina - 2a Eliminatoria - Zona
+  1 - Jornada 1 (jogo 1619)\nPavilhão: S. PAIO OLEIROS\nhttps://portal.fpa
+ .pt/prova/10030/
+END:VEVENT
+BEGIN:VEVENT
 UID:323875@portal.fpa.pt
 DTSTAMP:20261015T000000Z
 DTSTART:20261114T190000Z

@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-"""Gera um calendário iCalendar com todos os jogos de seniores de um clube nas provas nacionais da FPA.
+"""Gera o calendário iCalendar e a classificação dos seniores de um clube nas provas nacionais da FPA.
 
-Uso: python3 fpa_calendar.py > padroense.ics
+Uso: python3 fpa_calendar.py  (escreve padroense.ics e classificacao.json)
 """
 import json
 import re
 import sys
 import urllib.request
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -17,7 +17,8 @@ CALENDAR_NAME = "Padroense Andebol"
 ESCALAO = "Seniores M"
 DURATION = timedelta(minutes=90)
 LISBON = ZoneInfo("Europe/Lisbon")
-PAVILHOES = json.loads((Path(__file__).parent / "pavilhoes.json").read_text(encoding="utf-8"))
+HERE = Path(__file__).parent
+PAVILHOES = json.loads((HERE / "pavilhoes.json").read_text(encoding="utf-8"))
 
 
 def get(url):
@@ -37,17 +38,68 @@ def current_season():
     return next(d["value"] for d in data["dropdowns"] if d["id"] == "season")
 
 
-def games():
+def is_ours(row):
+    return CLUB_ID in (row["ID_OBJECTO_CASA"], row["ID_OBJECTO_FORA"])
+
+
+def our_name(row):
+    return row["EQUIPA_CASA"] if row["ID_OBJECTO_CASA"] == CLUB_ID else row["EQUIPA_FORA"]
+
+
+def lost(row):
+    if row["JOG_GOLOS_CASA"] is None:
+        return False
+    home, away = int(row["JOG_GOLOS_CASA"]), int(row["JOG_GOLOS_FORA"])
+    return home < away if row["ID_OBJECTO_CASA"] == CLUB_ID else away < home
+
+
+def next_round(rows, ours):
+    """Jogos com "Vencedor jogo N" em que N é um jogo nosso ainda não perdido."""
+    alive = {r["JOG_NUM_JOGO"]: r for r in ours if not lost(r)}
+    found = []
+    for row in rows:
+        for side in ("EQUIPA_CASA", "EQUIPA_FORA"):
+            m = re.fullmatch(r"Vencedor jogo (\d+)", row[side].strip())
+            if m and m.group(1) in alive:
+                prev = alive[m.group(1)]
+                found.append(dict(row, **{side: our_name(prev), "TENTATIVE": prev["JOG_GOLOS_CASA"] is None}))
+    return found
+
+
+def collect():
     season = current_season()
-    seen = {}
+    games, standings = {}, []
     for prova in api(f"getCompeticoes/{season}/8/{ESCALAO[-1]}/"):
         if prova["ESC_DESCRICAO"] != ESCALAO:
             continue
+        rows = []
         for fase in api(f"getFases/{prova['ID_PROVA']}"):
-            for row in api(f"getResultadosCalendario/{prova['ID_PROVA']}/{fase['ID_FASE']}"):
-                if CLUB_ID in (row["ID_OBJECTO_CASA"], row["ID_OBJECTO_FORA"]):
-                    seen[row["ID_PROVA_JOGO"]] = dict(row, ID_PROVA=prova["ID_PROVA"], FASE=fase["DESCRICAO"])
-    return sorted(seen.values(), key=lambda r: (r["JOG_DATA"], r["JOG_HORA"] or ""))
+            fase_rows = [dict(r, ID_PROVA=prova["ID_PROVA"], FASE=fase["DESCRICAO"])
+                         for r in api(f"getResultadosCalendario/{prova['ID_PROVA']}/{fase['ID_FASE']}")]
+            rows += fase_rows
+            ours = [r for r in fase_rows if is_ours(r)]
+            if ours and "TACA" not in prova["PRO_DESCRICAO"].upper():
+                standings.append((max(r["JOG_DATA"] for r in ours), prova, fase, our_name(ours[0])))
+        ours = [r for r in rows if is_ours(r)]
+        for row in ours + next_round(rows, ours):
+            games[row["ID_PROVA_JOGO"]] = row
+    return sorted(games.values(), key=lambda r: (r["JOG_DATA"], r["JOG_HORA"] or "")), standings
+
+
+def classificacao(standings):
+    if not standings:
+        return None
+    _, prova, fase, team = max(standings, key=lambda s: s[0])
+    rows = api(f"getClassificacoes/{prova['ID_PROVA']}/{fase['ID_FASE']}")
+    keys = {"PEQ_CLASS_CLASSIFICACAO": "pos", "CLU_NOME": "equipa", "PEQ_CLASS_NUMERO_JOGOS": "j",
+            "PEQ_CLASS_NUMERO_VITORIAS": "v", "PEQ_CLASS_NUMERO_EMPATES": "e", "PEQ_CLASS_NUMERO_DERROTAS": "d",
+            "PEQ_CLASS_GOLOS_MARCADOS": "gm", "PEQ_CLASS_GOLOS_SOFRIDOS": "gs", "PEQ_CLASS_PONTOS": "pts"}
+    return {
+        "prova": " ".join(prova["PRO_DESCRICAO"].split()),
+        "fase": fase["DESCRICAO"],
+        "equipa": " ".join(team.split()),
+        "tabela": [{v: (" ".join(r[k].split()) if k == "CLU_NOME" else r[k]) for k, v in keys.items()} for r in rows],
+    }
 
 
 def esc(text):
@@ -70,7 +122,15 @@ def utc(dt):
     return dt.astimezone(ZoneInfo("UTC")).strftime("%Y%m%dT%H%M%SZ")
 
 
-def ics(rows):
+def when(row):
+    if row["JOG_HORA"] in (None, "", "00:00"):
+        day = date.fromisoformat(row["JOG_DATA"])
+        return [f"DTSTART;VALUE=DATE:{day:%Y%m%d}", f"DTEND;VALUE=DATE:{day + timedelta(days=1):%Y%m%d}"]
+    start = datetime.fromisoformat(f"{row['JOG_DATA']}T{row['JOG_HORA']}").replace(tzinfo=LISBON)
+    return [f"DTSTART:{utc(start)}", f"DTEND:{utc(start + DURATION)}"]
+
+
+def ics(rows, missing=None):
     # Truncated to the day so the scheduled run commits at most once a day.
     stamp = datetime.now(ZoneInfo("UTC")).strftime("%Y%m%dT000000Z")
     out = [
@@ -87,14 +147,14 @@ def ics(rows):
         home, away = " ".join(r["EQUIPA_CASA"].split()), " ".join(r["EQUIPA_FORA"].split())
         score = f" {r['JOG_GOLOS_CASA']}-{r['JOG_GOLOS_FORA']} " if r["JOG_GOLOS_CASA"] is not None else " vs "
         competition = " ".join(r["PRO_DESCRICAO"].split())
-        prefix = "Taça: " if "TACA" in competition.upper() else ""
-        start = datetime.fromisoformat(f"{r['JOG_DATA']}T{r['JOG_HORA'] or '00:00'}").replace(tzinfo=LISBON)
+        prefix = ("Taça (se vencer): " if r.get("TENTATIVE") else "Taça: ") if "TACA" in competition.upper() else ""
+        if r["REC_NOME"] not in PAVILHOES and missing is not None:
+            missing.add(r["REC_NOME"])
         out += [
             "BEGIN:VEVENT",
             f"UID:{r['ID_PROVA_JOGO']}@portal.fpa.pt",
             f"DTSTAMP:{stamp}",
-            f"DTSTART:{utc(start)}",
-            f"DTEND:{utc(start + DURATION)}",
+            *when(r),
             "SUMMARY:" + esc(prefix + home + score + away),
             "LOCATION:" + esc(PAVILHOES.get(r["REC_NOME"], r["REC_NOME"])),
             "DESCRIPTION:" + esc(f"{competition} - {r['FASE']} - Jornada {r['PJO_NUM_JORNADA']} (jogo {r['JOG_NUM_JOGO']})\nPavilhão: {r['REC_NOME']}\nhttps://portal.fpa.pt/prova/{r['ID_PROVA']}/"),
@@ -105,7 +165,13 @@ def ics(rows):
 
 
 if __name__ == "__main__":
-    rows = games()
+    rows, standings = collect()
     if not rows:
         sys.exit(f"Nenhum jogo do clube {CLUB_ID} encontrado em {ESCALAO}")
-    sys.stdout.write(ics(rows))
+    missing = set()
+    (HERE / "padroense.ics").write_bytes(ics(rows, missing).encode("utf-8"))
+    table = classificacao(standings)
+    if table:
+        (HERE / "classificacao.json").write_text(json.dumps(table, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    for venue in sorted(missing):
+        print(f"Pavilhão sem morada: {venue}", file=sys.stderr)
