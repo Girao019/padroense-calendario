@@ -1,34 +1,52 @@
 #!/usr/bin/env python3
-"""Gera um calendário iCalendar com os jogos de uma equipa em provas da FPA.
+"""Gera um calendário iCalendar com todos os jogos de seniores de um clube nas provas nacionais da FPA.
 
-Uso: python3 fpa_calendar.py [EQUIPA] [ID_PROVA ...] > calendario.ics
+Uso: python3 fpa_calendar.py > padroense.ics
 """
 import json
+import re
 import sys
 import urllib.request
 from datetime import datetime, timedelta
+from pathlib import Path
 from zoneinfo import ZoneInfo
 
 API = "https://ws.fpa.pt/index.php/"
-TEAM = "PADROENSE"
-PROVAS = ["10018", "10030"]
+CLUB_ID = "878"
+CALENDAR_NAME = "Padroense Andebol"
+ESCALAO = "Seniores M"
 DURATION = timedelta(minutes=90)
 LISBON = ZoneInfo("Europe/Lisbon")
+PAVILHOES = json.loads((Path(__file__).parent / "pavilhoes.json").read_text(encoding="utf-8"))
 
 
-def fetch(path):
-    req = urllib.request.Request(API + path, headers={"User-Agent": "Mozilla/5.0"})
+def get(url):
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
     with urllib.request.urlopen(req, timeout=30) as r:
-        return json.load(r) or []
+        return r.read().decode("utf-8")
 
 
-def games(team, provas):
+def api(path):
+    return json.loads(get(API + path)) or []
+
+
+def current_season():
+    html = get(f"https://portal.fpa.pt/clube/id/{CLUB_ID}")
+    m = re.search(r"var TABLE_CONTENT_1\s*=\s*", html)
+    data, _ = json.JSONDecoder().raw_decode(html, m.end())
+    return next(d["value"] for d in data["dropdowns"] if d["id"] == "season")
+
+
+def games():
+    season = current_season()
     seen = {}
-    for prova in provas:
-        for fase in fetch(f"getFases/{prova}"):
-            for row in fetch(f"getResultadosCalendario/{prova}/{fase['ID_FASE']}"):
-                if team in row["EQUIPA_CASA"].upper() + row["EQUIPA_FORA"].upper():
-                    seen[row["ID_PROVA_JOGO"]] = dict(row, ID_PROVA=prova, FASE=fase["DESCRICAO"])
+    for prova in api(f"getCompeticoes/{season}/8/{ESCALAO[-1]}/"):
+        if prova["ESC_DESCRICAO"] != ESCALAO:
+            continue
+        for fase in api(f"getFases/{prova['ID_PROVA']}"):
+            for row in api(f"getResultadosCalendario/{prova['ID_PROVA']}/{fase['ID_FASE']}"):
+                if CLUB_ID in (row["ID_OBJECTO_CASA"], row["ID_OBJECTO_FORA"]):
+                    seen[row["ID_PROVA_JOGO"]] = dict(row, ID_PROVA=prova["ID_PROVA"], FASE=fase["DESCRICAO"])
     return sorted(seen.values(), key=lambda r: (r["JOG_DATA"], r["JOG_HORA"] or ""))
 
 
@@ -60,8 +78,10 @@ def ics(rows):
         "VERSION:2.0",
         "PRODID:-//padroense-calendario//PT",
         "CALSCALE:GREGORIAN",
-        f"X-WR-CALNAME:{esc(TEAM.title())} Andebol",
+        f"X-WR-CALNAME:{CALENDAR_NAME}",
         "X-WR-TIMEZONE:Europe/Lisbon",
+        "REFRESH-INTERVAL;VALUE=DURATION:PT6H",
+        "X-PUBLISHED-TTL:PT6H",
     ]
     for r in rows:
         home, away = " ".join(r["EQUIPA_CASA"].split()), " ".join(r["EQUIPA_FORA"].split())
@@ -76,9 +96,8 @@ def ics(rows):
             f"DTSTART:{utc(start)}",
             f"DTEND:{utc(start + DURATION)}",
             "SUMMARY:" + esc(prefix + home + score + away),
-            "LOCATION:" + esc(r["REC_NOME"]),
-            "DESCRIPTION:" + esc(f"{competition} - {r['FASE']} - Jornada {r['PJO_NUM_JORNADA']} (jogo {r['JOG_NUM_JOGO']})"),
-            f"URL:https://portal.fpa.pt/prova/{r['ID_PROVA']}/",
+            "LOCATION:" + esc(PAVILHOES.get(r["REC_NOME"], r["REC_NOME"])),
+            "DESCRIPTION:" + esc(f"{competition} - {r['FASE']} - Jornada {r['PJO_NUM_JORNADA']} (jogo {r['JOG_NUM_JOGO']})\nPavilhão: {r['REC_NOME']}\nhttps://portal.fpa.pt/prova/{r['ID_PROVA']}/"),
             "END:VEVENT",
         ]
     out.append("END:VCALENDAR")
@@ -86,9 +105,7 @@ def ics(rows):
 
 
 if __name__ == "__main__":
-    TEAM = sys.argv[1].upper() if len(sys.argv) > 1 else TEAM
-    provas = sys.argv[2:] or PROVAS
-    rows = games(TEAM, provas)
+    rows = games()
     if not rows:
-        sys.exit(f"Nenhum jogo de {TEAM} encontrado nas provas {provas}")
+        sys.exit(f"Nenhum jogo do clube {CLUB_ID} encontrado em {ESCALAO}")
     sys.stdout.write(ics(rows))
