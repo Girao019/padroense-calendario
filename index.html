@@ -41,6 +41,7 @@
   .tag { font-size: .75rem; font-weight: 700; color: var(--accent); margin-right: 6px; }
   .score { font-weight: 700; font-variant-numeric: tabular-nums; padding: 4px 8px; border-radius: 8px; white-space: nowrap; }
   .V { color: var(--win); } .D { color: var(--loss); } .E { color: var(--draw); }
+  .score.pending { color: var(--muted); font-weight: 600; font-size: .85rem; }
   .list { padding: 0; }
   .tag.maybe { color: var(--muted); }
   .live { display: inline-block; font-size: .75rem; font-weight: 700; color: var(--accent-text); background: var(--accent);
@@ -161,6 +162,8 @@ function row(g) {
     const [us, them] = isUs(g.home) ? [g.gh, g.ga] : [g.ga, g.gh];
     const r = us > them ? "V" : us < them ? "D" : "E";
     li.append(el("span", "score " + r, `${r} ${g.gh}-${g.ga}`));
+  } else if (g.start < Date.now() - 3 * 3600e3) {
+    li.append(el("span", "score pending", "a aguardar resultado"));
   }
   return li;
 }
@@ -172,7 +175,7 @@ let games = [];
 function render() {
   const cutoff = Date.now() - 3 * 3600e3;
   const upcoming = games.filter((g) => g.gh == null && g.start >= cutoff);
-  const results = games.filter((g) => g.gh != null).reverse();
+  const results = games.filter((g) => g.gh != null || g.start < cutoff).reverse();
 
   const next = document.getElementById("next");
   next.textContent = "";

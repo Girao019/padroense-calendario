@@ -1,3 +1,7 @@
+import tempfile
+from pathlib import Path
+
+import fpa_calendar
 from fpa_calendar import fold, ics, next_round
 
 short = "LOCATION:MUN. PADRÃO LÉGUA"
@@ -28,4 +32,8 @@ assert next_round([nxt], [dict(ours, JOG_GOLOS_CASA="25", JOG_GOLOS_FORA="20")])
 cal = ics(found + [game("1", "PADROENSE FC", "Y", hora=None)])
 assert "SUMMARY:Taça (se vencer): S. PAIO vs PADROENSE FC" in cal
 assert "DTSTART;VALUE=DATE:20261107\r\nDTEND;VALUE=DATE:20261108" in cal
+fpa_calendar.collect = lambda: ([], [])
+with tempfile.TemporaryDirectory() as tmp:
+    fpa_calendar.main(Path(tmp))
+    assert list(Path(tmp).iterdir()) == []
 print("ok")

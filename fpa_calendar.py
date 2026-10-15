@@ -164,14 +164,20 @@ def ics(rows, missing=None):
     return "\r\n".join(fold(line) for line in out) + "\r\n"
 
 
-if __name__ == "__main__":
+def main(out=HERE):
     rows, standings = collect()
     if not rows:
-        sys.exit(f"Nenhum jogo do clube {CLUB_ID} encontrado em {ESCALAO}")
+        # Between seasons the new season has no fixtures yet; keep the last published files.
+        print(f"Sem jogos do clube {CLUB_ID} em {ESCALAO}; ficheiros mantidos.", file=sys.stderr)
+        return
     missing = set()
-    (HERE / "padroense.ics").write_bytes(ics(rows, missing).encode("utf-8"))
+    (out / "padroense.ics").write_bytes(ics(rows, missing).encode("utf-8"))
     table = classificacao(standings)
     if table:
-        (HERE / "classificacao.json").write_text(json.dumps(table, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+        (out / "classificacao.json").write_text(json.dumps(table, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     for venue in sorted(missing):
         print(f"Pavilhão sem morada: {venue}", file=sys.stderr)
+
+
+if __name__ == "__main__":
+    main()
