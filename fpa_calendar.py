@@ -40,6 +40,18 @@ def esc(text):
     return (text or "").replace("\\", "\\\\").replace(";", "\\;").replace(",", "\\,").replace("\n", "\\n")
 
 
+def fold(line, limit=75):
+    parts, current = [], b""
+    for ch in line:
+        encoded = ch.encode("utf-8")
+        if len(current) + len(encoded) > limit:
+            parts.append(current)
+            current, limit = b" ", 75
+        current += encoded
+    parts.append(current)
+    return "\r\n".join(p.decode("utf-8") for p in parts)
+
+
 def utc(dt):
     return dt.astimezone(ZoneInfo("UTC")).strftime("%Y%m%dT%H%M%SZ")
 
@@ -70,7 +82,7 @@ def ics(rows, competition):
             "END:VEVENT",
         ]
     out.append("END:VCALENDAR")
-    return "\r\n".join(out) + "\r\n"
+    return "\r\n".join(fold(line) for line in out) + "\r\n"
 
 
 if __name__ == "__main__":
