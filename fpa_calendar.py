@@ -74,7 +74,7 @@ def collect():
             continue
         rows = []
         for fase in api(f"getFases/{prova['ID_PROVA']}"):
-            fase_rows = [dict(r, ID_PROVA=prova["ID_PROVA"], FASE=fase["DESCRICAO"])
+            fase_rows = [dict(r, ID_PROVA=prova["ID_PROVA"], ID_FASE=fase["ID_FASE"], FASE=fase["DESCRICAO"])
                          for r in api(f"getResultadosCalendario/{prova['ID_PROVA']}/{fase['ID_FASE']}")]
             rows += fase_rows
             ours = [r for r in fase_rows if is_ours(r)]
