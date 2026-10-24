@@ -5,6 +5,28 @@
  "tabela": [
   {
    "pos": "1",
+   "equipa": "PADROENSE FC",
+   "j": "6",
+   "v": "4",
+   "e": "0",
+   "d": "2",
+   "gm": "167",
+   "gs": "163",
+   "pts": "14"
+  },
+  {
+   "pos": "2",
+   "equipa": "CDC S. PAIO OLEIROS",
+   "j": "6",
+   "v": "3",
+   "e": "1",
+   "d": "2",
+   "gm": "146",
+   "gs": "165",
+   "pts": "13"
+  },
+  {
+   "pos": "3",
    "equipa": "AA ÁGUAS SANTAS 'B'",
    "j": "5",
    "v": "4",
@@ -15,7 +37,7 @@
    "pts": "13"
   },
   {
-   "pos": "2",
+   "pos": "4",
    "equipa": "AC LAMEGO /Naturdouro Viagens",
    "j": "5",
    "v": "4",
@@ -26,29 +48,18 @@
    "pts": "13"
   },
   {
-   "pos": "3",
-   "equipa": "CDC S. PAIO OLEIROS",
-   "j": "5",
+   "pos": "5",
+   "equipa": "ACADÉMICO FC /Ribadouro",
+   "j": "6",
    "v": "3",
-   "e": "1",
-   "d": "1",
-   "gm": "126",
-   "gs": "127",
+   "e": "0",
+   "d": "3",
+   "gm": "166",
+   "gs": "161",
    "pts": "12"
   },
   {
-   "pos": "4",
-   "equipa": "PADROENSE FC",
-   "j": "5",
-   "v": "3",
-   "e": "0",
-   "d": "2",
-   "gm": "140",
-   "gs": "138",
-   "pts": "11"
-  },
-  {
-   "pos": "5",
+   "pos": "6",
    "equipa": "GONDOMAR CULTURAL",
    "j": "5",
    "v": "2",
@@ -59,26 +70,15 @@
    "pts": "10"
   },
   {
-   "pos": "6",
-   "equipa": "ESTRELA VIGOROSA SPORT",
-   "j": "5",
-   "v": "2",
-   "e": "0",
-   "d": "3",
-   "gm": "134",
-   "gs": "150",
-   "pts": "9"
-  },
-  {
    "pos": "7",
-   "equipa": "ACADÉMICO FC /Ribadouro",
-   "j": "5",
+   "equipa": "ESTRELA VIGOROSA SPORT",
+   "j": "6",
    "v": "2",
    "e": "0",
-   "d": "3",
-   "gm": "128",
-   "gs": "141",
-   "pts": "9"
+   "d": "4",
+   "gm": "159",
+   "gs": "177",
+   "pts": "10"
   },
   {
    "pos": "8",
