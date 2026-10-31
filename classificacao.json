@@ -5,6 +5,17 @@
  "tabela": [
   {
    "pos": "1",
+   "equipa": "GONDOMAR CULTURAL",
+   "j": "7",
+   "v": "3",
+   "e": "2",
+   "d": "2",
+   "gm": "210",
+   "gs": "217",
+   "pts": "15"
+  },
+  {
+   "pos": "2",
    "equipa": "PADROENSE FC",
    "j": "6",
    "v": "4",
@@ -12,17 +23,6 @@
    "d": "2",
    "gm": "167",
    "gs": "163",
-   "pts": "14"
-  },
-  {
-   "pos": "2",
-   "equipa": "AC LAMEGO /Naturdouro Viagens",
-   "j": "6",
-   "v": "4",
-   "e": "0",
-   "d": "2",
-   "gm": "193",
-   "gs": "169",
    "pts": "14"
   },
   {
@@ -38,6 +38,28 @@
   },
   {
    "pos": "4",
+   "equipa": "AC LAMEGO /Naturdouro Viagens",
+   "j": "6",
+   "v": "4",
+   "e": "0",
+   "d": "2",
+   "gm": "193",
+   "gs": "169",
+   "pts": "14"
+  },
+  {
+   "pos": "5",
+   "equipa": "ACADÉMICO FC /Ribadouro",
+   "j": "7",
+   "v": "3",
+   "e": "1",
+   "d": "3",
+   "gm": "196",
+   "gs": "191",
+   "pts": "14"
+  },
+  {
+   "pos": "6",
    "equipa": "CDC S. PAIO OLEIROS",
    "j": "6",
    "v": "3",
@@ -46,28 +68,6 @@
    "gm": "146",
    "gs": "165",
    "pts": "13"
-  },
-  {
-   "pos": "5",
-   "equipa": "GONDOMAR CULTURAL",
-   "j": "6",
-   "v": "3",
-   "e": "1",
-   "d": "2",
-   "gm": "180",
-   "gs": "187",
-   "pts": "13"
-  },
-  {
-   "pos": "6",
-   "equipa": "ACADÉMICO FC /Ribadouro",
-   "j": "6",
-   "v": "3",
-   "e": "0",
-   "d": "3",
-   "gm": "166",
-   "gs": "161",
-   "pts": "12"
   },
   {
    "pos": "7",
