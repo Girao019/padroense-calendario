@@ -16,6 +16,17 @@
   },
   {
    "pos": "2",
+   "equipa": "AC LAMEGO /Naturdouro Viagens",
+   "j": "7",
+   "v": "5",
+   "e": "0",
+   "d": "2",
+   "gm": "217",
+   "gs": "192",
+   "pts": "17"
+  },
+  {
+   "pos": "3",
    "equipa": "AA ÁGUAS SANTAS 'B'",
    "j": "7",
    "v": "5",
@@ -26,7 +37,18 @@
    "pts": "17"
   },
   {
-   "pos": "3",
+   "pos": "4",
+   "equipa": "CDC S. PAIO OLEIROS",
+   "j": "7",
+   "v": "4",
+   "e": "1",
+   "d": "2",
+   "gm": "176",
+   "gs": "185",
+   "pts": "16"
+  },
+  {
+   "pos": "5",
    "equipa": "GONDOMAR CULTURAL",
    "j": "7",
    "v": "3",
@@ -37,18 +59,7 @@
    "pts": "15"
   },
   {
-   "pos": "4",
-   "equipa": "AC LAMEGO /Naturdouro Viagens",
-   "j": "6",
-   "v": "4",
-   "e": "0",
-   "d": "2",
-   "gm": "193",
-   "gs": "169",
-   "pts": "14"
-  },
-  {
-   "pos": "5",
+   "pos": "6",
    "equipa": "ACADÉMICO FC /Ribadouro",
    "j": "7",
    "v": "3",
@@ -59,18 +70,18 @@
    "pts": "14"
   },
   {
-   "pos": "6",
-   "equipa": "CDC S. PAIO OLEIROS",
-   "j": "6",
-   "v": "3",
+   "pos": "7",
+   "equipa": "CDC SANTANA",
+   "j": "7",
+   "v": "2",
    "e": "1",
-   "d": "2",
-   "gm": "146",
-   "gs": "165",
-   "pts": "13"
+   "d": "4",
+   "gm": "174",
+   "gs": "175",
+   "pts": "12"
   },
   {
-   "pos": "7",
+   "pos": "8",
    "equipa": "AC VERMOIM /LUZACRIL",
    "j": "7",
    "v": "2",
@@ -81,26 +92,15 @@
    "pts": "12"
   },
   {
-   "pos": "8",
-   "equipa": "CDC SANTANA",
-   "j": "6",
-   "v": "2",
-   "e": "1",
-   "d": "3",
-   "gm": "151",
-   "gs": "151",
-   "pts": "11"
-  },
-  {
    "pos": "9",
    "equipa": "ESTRELA VIGOROSA SPORT",
-   "j": "6",
+   "j": "7",
    "v": "2",
    "e": "0",
-   "d": "4",
-   "gm": "159",
-   "gs": "177",
-   "pts": "10"
+   "d": "5",
+   "gm": "179",
+   "gs": "207",
+   "pts": "11"
   },
   {
    "pos": "10",
