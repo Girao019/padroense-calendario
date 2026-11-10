@@ -59,7 +59,7 @@ def next_round(rows, ours):
     found = []
     for row in rows:
         for side in ("EQUIPA_CASA", "EQUIPA_FORA"):
-            m = re.fullmatch(r"Vencedor jogo (\d+)", row[side].strip())
+            m = re.fullmatch(r"Vencedor jogo (\d+)", (row[side] or "").strip())
             if m and m.group(1) in alive:
                 prev = alive[m.group(1)]
                 ours_side = "CASA" if prev["ID_OBJECTO_CASA"] == CLUB_ID else "FORA"

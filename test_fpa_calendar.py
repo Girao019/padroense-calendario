@@ -24,7 +24,7 @@ def game(num, home, away, gh=None, ga=None, hora="19:00", casa="878", fora="1"):
 ours = game("1043", "PADROENSE FC", "BALTAR")
 nxt = game("1619", "S. PAIO", "Vencedor jogo 1043", casa="70", fora="59")
 other = game("1620", "LUSITANOS", "Vencedor jogo 1045", casa="853", fora="59")
-found = next_round([ours, nxt, other], [ours])
+found = next_round([ours, nxt, other, game("1621", None, None)], [ours])
 assert [(g["JOG_NUM_JOGO"], g["EQUIPA_FORA"], g["TENTATIVE"]) for g in found] == [("1619", "PADROENSE FC", True)]
 assert found[0]["ID_OBJECTO_FORA"] == "878" and found[0]["URL_EMBLEMA_FORA"] == "crest-878"
 assert next_round([nxt], [dict(ours, JOG_GOLOS_CASA="20", JOG_GOLOS_FORA="25")]) == []
