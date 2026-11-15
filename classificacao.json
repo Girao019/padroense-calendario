@@ -17,24 +17,24 @@
   {
    "pos": "2",
    "equipa": "AA ÁGUAS SANTAS 'B'",
-   "j": "7",
+   "j": "8",
    "v": "5",
-   "e": "0",
+   "e": "1",
    "d": "2",
-   "gm": "218",
-   "gs": "188",
-   "pts": "17"
+   "gm": "249",
+   "gs": "219",
+   "pts": "19"
   },
   {
    "pos": "3",
-   "equipa": "CDC S. PAIO OLEIROS",
+   "equipa": "AC LAMEGO /Naturdouro Viagens",
    "j": "8",
-   "v": "4",
+   "v": "5",
    "e": "1",
-   "d": "3",
-   "gm": "202",
-   "gs": "212",
-   "pts": "17"
+   "d": "2",
+   "gm": "248",
+   "gs": "223",
+   "pts": "19"
   },
   {
    "pos": "4",
@@ -49,13 +49,13 @@
   },
   {
    "pos": "5",
-   "equipa": "AC LAMEGO /Naturdouro Viagens",
-   "j": "7",
-   "v": "5",
-   "e": "0",
-   "d": "2",
-   "gm": "217",
-   "gs": "192",
+   "equipa": "CDC S. PAIO OLEIROS",
+   "j": "8",
+   "v": "4",
+   "e": "1",
+   "d": "3",
+   "gm": "202",
+   "gs": "212",
    "pts": "17"
   },
   {
@@ -71,6 +71,17 @@
   },
   {
    "pos": "7",
+   "equipa": "AC VERMOIM /LUZACRIL",
+   "j": "8",
+   "v": "3",
+   "e": "1",
+   "d": "4",
+   "gm": "223",
+   "gs": "223",
+   "pts": "15"
+  },
+  {
+   "pos": "8",
    "equipa": "ESTRELA VIGOROSA SPORT",
    "j": "8",
    "v": "3",
@@ -81,26 +92,15 @@
    "pts": "14"
   },
   {
-   "pos": "8",
-   "equipa": "AC VERMOIM /LUZACRIL",
-   "j": "7",
-   "v": "2",
-   "e": "1",
-   "d": "4",
-   "gm": "188",
-   "gs": "196",
-   "pts": "12"
-  },
-  {
    "pos": "9",
    "equipa": "CDC SANTANA",
-   "j": "7",
+   "j": "8",
    "v": "2",
    "e": "1",
-   "d": "4",
-   "gm": "174",
-   "gs": "175",
-   "pts": "12"
+   "d": "5",
+   "gm": "201",
+   "gs": "210",
+   "pts": "13"
   },
   {
    "pos": "10",
