@@ -5,113 +5,113 @@
  "tabela": [
   {
    "pos": "1",
-   "equipa": "PADROENSE FC",
-   "j": "8",
+   "equipa": "AA ÁGUAS SANTAS 'B'",
+   "j": "9",
    "v": "6",
-   "e": "0",
+   "e": "1",
    "d": "2",
-   "gm": "227",
-   "gs": "219",
-   "pts": "20"
+   "gm": "281",
+   "gs": "249",
+   "pts": "22"
   },
   {
    "pos": "2",
-   "equipa": "AA ÁGUAS SANTAS 'B'",
-   "j": "8",
-   "v": "5",
-   "e": "1",
-   "d": "2",
-   "gm": "249",
-   "gs": "219",
-   "pts": "19"
+   "equipa": "PADROENSE FC",
+   "j": "9",
+   "v": "6",
+   "e": "0",
+   "d": "3",
+   "gm": "258",
+   "gs": "252",
+   "pts": "21"
   },
   {
    "pos": "3",
-   "equipa": "AC LAMEGO /Naturdouro Viagens",
-   "j": "8",
+   "equipa": "ACADÉMICO FC /Ribadouro",
+   "j": "9",
    "v": "5",
    "e": "1",
-   "d": "2",
-   "gm": "248",
-   "gs": "223",
-   "pts": "19"
+   "d": "3",
+   "gm": "242",
+   "gs": "235",
+   "pts": "20"
   },
   {
    "pos": "4",
-   "equipa": "ACADÉMICO FC /Ribadouro",
-   "j": "8",
-   "v": "4",
+   "equipa": "AC LAMEGO /Naturdouro Viagens",
+   "j": "9",
+   "v": "5",
    "e": "1",
    "d": "3",
-   "gm": "218",
-   "gs": "212",
-   "pts": "17"
+   "gm": "271",
+   "gs": "247",
+   "pts": "20"
   },
   {
    "pos": "5",
    "equipa": "CDC S. PAIO OLEIROS",
-   "j": "8",
+   "j": "9",
    "v": "4",
-   "e": "1",
+   "e": "2",
    "d": "3",
-   "gm": "202",
-   "gs": "212",
-   "pts": "17"
+   "gm": "228",
+   "gs": "238",
+   "pts": "19"
   },
   {
    "pos": "6",
    "equipa": "GONDOMAR CULTURAL",
-   "j": "8",
-   "v": "3",
+   "j": "9",
+   "v": "4",
    "e": "2",
    "d": "3",
-   "gm": "236",
-   "gs": "251",
-   "pts": "16"
+   "gm": "269",
+   "gs": "282",
+   "pts": "19"
   },
   {
    "pos": "7",
    "equipa": "AC VERMOIM /LUZACRIL",
-   "j": "8",
+   "j": "9",
    "v": "3",
-   "e": "1",
+   "e": "2",
    "d": "4",
-   "gm": "223",
-   "gs": "223",
-   "pts": "15"
+   "gm": "249",
+   "gs": "249",
+   "pts": "17"
   },
   {
    "pos": "8",
    "equipa": "ESTRELA VIGOROSA SPORT",
-   "j": "8",
-   "v": "3",
+   "j": "9",
+   "v": "4",
    "e": "0",
    "d": "5",
-   "gm": "213",
-   "gs": "233",
-   "pts": "14"
+   "gm": "237",
+   "gs": "255",
+   "pts": "17"
   },
   {
    "pos": "9",
    "equipa": "CDC SANTANA",
-   "j": "8",
+   "j": "9",
    "v": "2",
    "e": "1",
-   "d": "5",
-   "gm": "201",
-   "gs": "210",
-   "pts": "13"
+   "d": "6",
+   "gm": "231",
+   "gs": "242",
+   "pts": "14"
   },
   {
    "pos": "10",
    "equipa": "AC LUSITANOS",
-   "j": "8",
+   "j": "9",
    "v": "0",
    "e": "2",
-   "d": "6",
-   "gm": "185",
-   "gs": "200",
-   "pts": "10"
+   "d": "7",
+   "gm": "207",
+   "gs": "224",
+   "pts": "11"
   }
  ]
 }
